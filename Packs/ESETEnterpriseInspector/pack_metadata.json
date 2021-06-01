@@ -1,0 +1,21 @@
+{
+    "name": "ESET Enterprise Inspector",
+    "description": "EEI Integration",
+    "support": "developer",
+    "currentVersion": "1.0.0",
+    "author": "Donny Maasland",
+    "url": "https://techcenter.eset.nl/",
+    "email": "",
+    "categories": [
+        "Endpoint"
+    ],
+    "tags": [
+        "eset",
+        "edr"
+    ],
+    "useCases": [],
+    "keywords": [],
+    "githubUser": [
+        "dmaasland"
+    ]
+}

@@ -1,0 +1,239 @@
+category: Endpoint
+commonfields:
+  id: ESETEnterpriseInspector
+  version: -1
+configuration:
+- display: Your ESET Enterprise Inspector URL
+  name: url
+  required: true
+  type: 0
+- display: Username
+  additionalinfo: The username to use for connection
+  name: username
+  required: true
+  type: 0
+- display: Password
+  additionalinfo: The password to use for connection
+  name: password
+  required: true
+  type: 4
+- display: Log into Domain
+  name: domain_login
+  required: false
+  type: 8
+- display: Trust any certificate (not secure)
+  name: insecure
+  required: false
+  type: 8
+- display: Use system proxy settings
+  name: proxy
+  required: false
+  type: 8
+description: '[Enter a comprehensive, yet concise, description of what the integration
+  does, what use cases it is designed for, etc.]'
+display: ESET Enterprise Inspector
+name: ESETEnterpriseInspector
+script:
+  commands:
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: top
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: skip
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: count
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: order_by
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: filter
+      required: false
+      secret: false
+    deprecated: false
+    description: 'List detections from ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-list-detections
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Detections
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id_type
+      required: false
+      secret: false
+
+    deprecated: false
+    description: 'Get detection details from ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-get-detection
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Detection
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id_type
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: resolved
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: priority
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: note
+      required: false
+      secret: false
+
+    deprecated: false
+    description: 'Update detection details in ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-update-detection
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Detection
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id_type
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: clean
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: note
+      required: false
+      secret: false
+
+    deprecated: false
+    description: 'Block executable through ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-block-executable
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Executable
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id_type
+      required: false
+      secret: false
+
+    deprecated: false
+    description: 'Unblock executable through ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-unblock-executable
+    outputs:
+    - contextPath: ESETEnterpriseInspector.executable
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  isfetch: false
+  runonce: false
+  script: '-'
+  type: python
+  subtype: python3
+  dockerimage: demisto/python3:3.9.1.15759
+fromversion: 5.5.0
+tests:
+- No tests (auto formatted)
