@@ -228,12 +228,262 @@ script:
       description: '[Enter a description of the data returned in this output.]'
       type: String
 
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: top
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: skip
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: count
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: order_by
+      required: false
+      secret: false
+
+    deprecated: false
+    description: 'Get rules from ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-list-rules
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Rules
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: rule_xml
+      required: true
+      secret: false
+
+    deprecated: false
+    description: 'Get rules from ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-create-rule
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Rules
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id_type
+      required: false
+      secret: false
+
+    deprecated: false
+    description: 'Get rule from ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-get-rule
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Rules
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id_type
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: rule_xml
+      required: true
+      secret: false
+
+    deprecated: false
+    description: 'Edit rule in ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-edit-rule
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Rules
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id_type
+      required: false
+      secret: false
+
+    deprecated: false
+    description: 'Delete rule from ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-delete-rule
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Rules
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id_type
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: enabled
+      required: true
+      secret: false
+
+    deprecated: false
+    description: 'Update rule in ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-update-rule
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Rules
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id_type
+      required: false
+      secret: false
+
+    deprecated: false
+    description: 'Isolate a computer from the network'
+    execution: false
+    name: eset-ei-isolate-computer
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Computers
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id_type
+      required: false
+      secret: false
+
+    deprecated: false
+    description: 'Undo isolation from the network'
+    execution: false
+    name: eset-ei-integrate-computer
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Computers
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    deprecated: false
+    description: 'Kill a process'
+    execution: false
+    name: eset-ei-kill-process
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Computers
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
   isfetch: false
   runonce: false
   script: '-'
   type: python
   subtype: python3
-  dockerimage: demisto/python3:3.9.1.15759
+  dockerimage: demisto/python3:3.9.5.20070
 fromversion: 5.5.0
 tests:
 - No tests (auto formatted)

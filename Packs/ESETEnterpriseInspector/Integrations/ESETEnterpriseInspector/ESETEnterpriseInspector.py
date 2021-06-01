@@ -82,48 +82,142 @@ class Client(BaseClient):
         self._update_token(auth_headers['X-Security-Token'])
 
 
-    def detections(self, top: int = None, skip: int = None, count: int = None, order_by: str = None, filter: str = None):
+    def detections(
+            self, params: dict = None, method: str = 'GET',
+            resp_type: str = 'json', detection_id: int = None,
+            body: dict = None
+        ):
 
-        params = {
-            '$top': top,
-            '$skip': skip,
-            '$count': count,
-            '$orderBy': order_by,
-            '$filter': filter,
-        }
+        endpoint = '/detections'
 
-        return self._http_request('GET', '/detections', params=params, resp_type='json', raise_on_status=True)
+        if detection_id:
+            endpoint += f'/{detection_id}'
 
-
-    def detection(self, id: int, id_type: str, method: str = 'GET', body: dict = None, resp_type: str = 'json'):
-
-        params = {
-            '$idType': id_type
-        }
-
-        return self._http_request(method, f'/detections/{id}', json_data=body, params=params, resp_type=resp_type, raise_on_status=True)
+        return self._http_request(
+            method,
+            endpoint,
+            params=params,
+            json_data=body,
+            resp_type=resp_type,
+            raise_on_status=True
+        )
 
 
-    def executable(self, id: int, id_type: str, action: str, method: str = 'POST', body: dict = None, resp_type: str = 'response'):
+    def executables(
+            self, executable_id: int = None, action: str = None,
+            method: str = 'POST', params: dict = None,
+            body: dict = None, resp_type: str = 'response'
+        ):
 
-        if action not in ['block', 'unblock']:
-            raise DemistoException(f'Invalid action {action}. Must be "block" or "unblock".')
+        endpoint = '/executables'
 
-        params = {
-            '$idType': id_type
-        }
+        if executable_id:
+            endpoint += f'/{executable_id}'
 
-        result = self._http_request(method, f'/executables/{id}/{action}', json_data=body, params=params, resp_type=resp_type, raise_on_status=True)
+            if action:
+                if action not in ['block', 'unblock']:
+                    raise DemistoException(f'Invalid action {action}. Must be "block" or "unblock".')
 
-        if result.status_code != 204:
-            raise DemistoException(f'Action {action} failed for executable: {id}.')
+                endpoint += f'/{action}'
 
-        return {'status': 'ok', 'id': id, 'id_type': id_type, 'body': body}
+        result = self._http_request(
+            method,
+            endpoint,
+            json_data=body,
+            params=params,
+            resp_type=resp_type,
+            raise_on_status=True
+        )
+
+        if result.status_code == 204:
+            return empty_result(
+                endpoint,
+                body,
+                params
+            )
+
+        return result.json()
+
+
+    def rules(
+            self, params: dict = None, method: str = 'GET',
+            resp_type: str = 'response', rule_id: int = None,
+            body: dict = None, xml_body: str = None
+        ):
+
+        endpoint = '/rules'
+
+        if rule_id:
+            endpoint += f'/{rule_id}'
+
+        result = self._http_request(
+            method,
+            endpoint,
+            json_data=body,
+            data=xml_body,
+            params=params,
+            resp_type=resp_type,
+            raise_on_status=True
+        )
+
+        if result.status_code == 204:
+            return empty_result(
+                endpoint,
+                body,
+                params
+            )
+
+        return result.json()
+
+
+    def computers(
+            self, action: str = None, params: dict = None, method: str = 'POST',
+            resp_type: str = 'response', object_id: int = None,
+            body: dict = None
+        ):
+
+        endpoint = '/machines'
+
+        if object_id:
+            endpoint += f'/{object_id}'
+
+            if action:
+                endpoint += f'/{action}'
+
+        result = self._http_request(
+            method,
+            endpoint,
+            json_data=body,
+            params=params,
+            resp_type=resp_type,
+            raise_on_status=True
+        )
+
+        if result.status_code == 204:
+            return empty_result(
+                endpoint,
+                body,
+                params
+            )
+
+        return result.json()
 
 
 ''' HELPER FUNCTIONS '''
 
-# TODO: ADD HERE ANY HELPER FUNCTION YOU MIGHT NEED (if any)
+
+def empty_result(
+        endpoint: str = None, body: dict = None,
+        params: dict = None, status: str = 'ok'
+    ):
+
+    return {
+        'status': status,
+        'endpoint': endpoint,
+        'body': body,
+        'params': params
+    }
+
 
 ''' COMMAND FUNCTIONS '''
 
@@ -169,13 +263,15 @@ def list_detections_command(client: Client, args: Dict[str, Any]) -> CommandResu
     order_by = args.get('order_by', 'creationTime desc')
     filter = args.get('filter', 'resolved eq 0')
 
-    result = client.detections(
-        top=top,
-        skip=skip,
-        count=count,
-        order_by=order_by,
-        filter=filter
-    )
+    params = {
+        '$top': top,
+        '$skip': skip,
+        '$count': count,
+        '$orderBy': order_by,
+        '$filter': filter
+    }
+
+    result = client.detections(params)
 
     return CommandResults(
         outputs_prefix='ESETEnterpriseInspector.Detections',
@@ -187,11 +283,11 @@ def list_detections_command(client: Client, args: Dict[str, Any]) -> CommandResu
 
 def get_detection_command(client: Client, args: Dict[str, Any]) -> CommandResults:
 
-    id = args.get('id')
+    detection_id = args.get('id')
     id_type = args.get('id_type')
 
-    result = client.detection(
-        id=id,
+    result = client.detections(
+        detection_id=detection_id,
         id_type=id_type
     )
 
@@ -204,7 +300,7 @@ def get_detection_command(client: Client, args: Dict[str, Any]) -> CommandResult
 
 def update_detection_command(client: Client, args: Dict[str, Any]) -> CommandResults:
 
-    id = args.get('id')
+    detection_id = args.get('id')
     id_type = args.get('id_type')
     resolved = args.get('resolved')
     priority = args.get('priority')
@@ -223,8 +319,8 @@ def update_detection_command(client: Client, args: Dict[str, Any]) -> CommandRes
     if note:
         body.update({'note': note})
 
-    client.detection(
-        id=id,
+    client.detections(
+        detection_id=detection_id,
         id_type=id_type,
         body=body,
         method='PATCH',
@@ -232,7 +328,7 @@ def update_detection_command(client: Client, args: Dict[str, Any]) -> CommandRes
     )
     
     result = client.detection(
-        id=id,
+        detection_id=detection_id,
         id_type=id_type
     )
 
@@ -246,11 +342,14 @@ def update_detection_command(client: Client, args: Dict[str, Any]) -> CommandRes
 
 def executable_command(client: Client, args: Dict[str, Any], action: str = 'block') -> CommandResults:
 
-    id = args.get('id')
+    executable_id = args.get('id')
     id_type = args.get('id_type')
     clean = args.get('clean') 
     note = args.get('note')
     body = {}
+    params = {
+        '$idType': id_type
+    }
 
     if clean:
         body.update({'clean': clean})
@@ -258,17 +357,209 @@ def executable_command(client: Client, args: Dict[str, Any], action: str = 'bloc
     if note:
         body.update({'note': note})
 
-    result = client.executable(
-        id=id,
+    result = client.executables(
+        executable_id=executable_id,
         id_type=id_type,
         body=body,
-        action=action
+        action=action,
+        params=params
     )
 
     return CommandResults(
         outputs_prefix='ESETEnterpriseInspector.Executable',
         outputs=result,
         raw_response=result
+    )
+
+def list_rules_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    top = args.get('top')
+    skip = args.get('skip')
+    count = args.get('count')
+    order_by = args.get('order_by')
+
+    params = {
+        '$top': top,
+        '$skip': skip,
+        '$count': count,
+        '$orderBy': order_by
+    }
+
+    result = client.rules(params)
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Rules',
+        outputs_key_field='id',
+        outputs=result['value'],
+        raw_response=result
+    )
+
+def create_rule_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    rule_xml = args.get('rule_xml')
+
+    result = client.rules(
+        method='POST',
+        xml_body = rule_xml
+    )
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Rules',
+        outputs_key_field='id',
+        outputs=result['RULE'],
+        raw_response=result
+    )
+
+def get_rule_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    rule_id = args.get('id')
+    id_type = args.get('id_type')
+
+    params = {
+        '$idType': id_type
+    }
+
+    result = client.rules(
+        rule_id=rule_id,
+        params=params
+    )
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Rules',
+        outputs_key_field='uuid',
+        outputs=result['RULE'],
+        raw_response=result
+    )
+
+
+def edit_rule_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    rule_id = args.get('id')
+    id_type = args.get('id_type')
+    rule_xml = args.get('rule_xml')
+
+    params = {
+        '$idType': id_type
+    }
+
+    result = client.rules(
+        rule_id=rule_id,
+        params=params,
+        xml_body=rule_xml,
+        method='PUT'
+    )
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Rules',
+        outputs_key_field='uuid',
+        outputs=result['RULE'],
+        raw_response=result
+    )
+
+
+def delete_rule_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    rule_id = args.get('id')
+    id_type = args.get('id_type')
+
+    params = {
+        '$idType': id_type
+    }
+
+    result = client.rules(
+        rule_id=rule_id,
+        params=params,
+        method='DELETE'
+    )
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Rules',
+        outputs=result,
+        raw_response=result
+    )
+
+def update_rule_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    rule_id = args.get('id')
+    id_type = args.get('id_type')
+    enabled = args.get('enabled')
+
+    params = {
+        '$idType': id_type
+    }
+
+    body = {
+        'enabled': enabled
+    }
+
+    result = client.rules(
+        rule_id=rule_id,
+        params=params,
+        body=body,
+        method='PATCH'
+    )
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Rules',
+        outputs=result,
+        raw_response=result
+    )
+
+
+def isolate_computer_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    object_id = args.get('id')
+    id_type = args.get('id_type')
+
+    params = {
+        '$idType': id_type
+    }
+
+    result = client.computers(
+        object_id=object_id,
+        params=params,
+        action='isolate',
+    )
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Computers',
+        outputs=result
+    )
+
+
+def integrate_computer_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    object_id = args.get('id')
+    id_type = args.get('id_type')
+
+    params = {
+        '$idType': id_type
+    }
+
+    result = client.computers(
+        object_id=object_id,
+        params=params,
+        action='integrate',
+    )
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Computers',
+        outputs=result
+    )
+
+
+def kill_process_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    object_id = args.get('id')
+
+    result = client.computers(
+        object_id=object_id,
+        action='kill',
+    )
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Computers',
+        outputs=result
     )
 
 
@@ -352,6 +643,53 @@ def main() -> None:
             elif demisto.command() == 'eset-ei-unblock-executable':
                 return_results(
                     executable_command(client, demisto.args(), action='unblock')
+                )
+
+            # Rule operations
+            elif demisto.command() == 'eset-ei-list-rules':
+                return_results(
+                    list_rules_command(client, demisto.args())
+                )
+
+            elif demisto.command() == 'eset-ei-create-rule':
+                return_results(
+                    create_rule_command(client, demisto.args())
+                )
+
+            elif demisto.command() == 'eset-ei-get-rule':
+                return_results(
+                    get_rule_command(client, demisto.args())
+                )
+
+            elif demisto.command() == 'eset-ei-edit-rule':
+                return_results(
+                    edit_rule_command(client, demisto.args())
+                )
+
+            elif demisto.command() == 'eset-ei-delete-rule':
+                return_results(
+                    delete_rule_command(client, demisto.args())
+                )
+
+            elif demisto.command() == 'eset-ei-update-rule':
+                return_results(
+                    update_rule_command(client, demisto.args())
+                )
+
+            # Computer operations
+            elif demisto.command() == 'eset-ei-isolate-computer':
+                return_results(
+                    isolate_computer_command(client, demisto.args())
+                )
+
+            elif demisto.command() == 'eset-ei-integrate-computer':
+                return_results(
+                    integrate_computer_command(client, demisto.args())
+                )
+
+            elif demisto.command() == 'eset-ei-kill-process':
+                return_results(
+                    kill_process_command(client, demisto.args())
                 )
 
     # Log exceptions and return errors
