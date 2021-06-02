@@ -29,6 +29,11 @@ configuration:
   name: proxy
   required: false
   type: 8
+- display: First fetch timestamp (<number> <time unit>, e.g., 12 hours, 7 days, 3 months, 1 year)
+  defaultvalue: 3 days
+  name: fetch_time
+  required: false
+  type: 0
 description: '[Enter a comprehensive, yet concise, description of what the integration
   does, what use cases it is designed for, etc.]'
 display: ESET Enterprise Inspector
@@ -478,7 +483,193 @@ script:
       description: '[Enter a description of the data returned in this output.]'
       type: String
 
-  isfetch: false
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: top
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: skip
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: count
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: order_by
+      required: false
+      secret: false
+
+    deprecated: false
+    description: 'Get exclusions from ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-list-exclusions
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Exclusions
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: exclusion_xml
+      required: true
+      secret: false
+
+    deprecated: false
+    description: 'Get exclusions from ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-create-exclusion
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Exclusions
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id_type
+      required: false
+      secret: false
+
+    deprecated: false
+    description: 'Get exclusion from ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-get-exclusion
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Exclusions
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id_type
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: exclusion_xml
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: auto_resolve
+      required: false
+      secret: false
+    
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: name
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: true
+      name: rule_ids
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: true
+      name: rule_uuids
+      required: false
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: note
+      required: false
+      secret: false
+
+    deprecated: false
+    description: 'Edit exclusion in ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-edit-exclusion
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Exclusions
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  - arguments:
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id
+      required: true
+      secret: false
+
+    - default: false
+      description: '[Enter a description of the argument, including any important
+        information users need to know, for example, default values.]'
+      isArray: false
+      name: id_type
+      required: false
+      secret: false
+
+    deprecated: false
+    description: 'Delete exclusion from ESET Enterprise Inspector'
+    execution: false
+    name: eset-ei-delete-exclusion
+    outputs:
+    - contextPath: ESETEnterpriseInspector.Exclusions
+      description: '[Enter a description of the data returned in this output.]'
+      type: String
+
+  isfetch: true
   runonce: false
   script: '-'
   type: python

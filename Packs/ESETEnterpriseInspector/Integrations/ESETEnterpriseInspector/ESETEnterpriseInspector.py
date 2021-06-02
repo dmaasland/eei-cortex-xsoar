@@ -203,6 +203,42 @@ class Client(BaseClient):
         return result.json()
 
 
+    def exclusions(
+            self, params: dict = None, method: str = 'GET',
+            resp_type: str = 'response', exclusion_id: int = None,
+            rule_id: int = None, body: dict = None,
+        ):
+
+        endpoint = '/exclusions'
+
+        if exclusion_id and rule_id:
+            raise DemistoException('Arguments "rule_id" and "exclusion_id" are mutually exclusive.')
+
+        if exclusion_id:
+            endpoint += f'/{exclusion_id}'
+
+        elif rule_id:
+            endpoint += f'/rule/{rule_id}'
+
+        result = self._http_request(
+            method,
+            endpoint,
+            json_data=body,
+            params=params,
+            resp_type=resp_type,
+            raise_on_status=True
+        )
+
+        if result.status_code == 204:
+            return empty_result(
+                endpoint,
+                body,
+                params
+            )
+
+        return result.json()
+
+
 ''' HELPER FUNCTIONS '''
 
 
@@ -245,10 +281,7 @@ def test_module(client: Client) -> str:
     client.authenticate()
 
     # Test get detections
-    client.detections(
-        top=1,
-        order_by='creationTime desc'
-    )
+    client.detections()
 
     # Everything passed
     message = 'ok'
@@ -285,10 +318,13 @@ def get_detection_command(client: Client, args: Dict[str, Any]) -> CommandResult
 
     detection_id = args.get('id')
     id_type = args.get('id_type')
+    params = {
+        '$idType': id_type
+    }
 
     result = client.detections(
         detection_id=detection_id,
-        id_type=id_type
+        params=params
     )
 
     return CommandResults(
@@ -306,6 +342,9 @@ def update_detection_command(client: Client, args: Dict[str, Any]) -> CommandRes
     priority = args.get('priority')
     note = args.get('note')
     body = {}
+    params = {
+        '$idType': id_type
+    }
 
     if not resolved and not priority and not note:
         raise DemistoException('Need one or more argument(s) of "resolved", "priority" or "note".')
@@ -321,7 +360,7 @@ def update_detection_command(client: Client, args: Dict[str, Any]) -> CommandRes
 
     client.detections(
         detection_id=detection_id,
-        id_type=id_type,
+        params=params,
         body=body,
         method='PATCH',
         resp_type='response'
@@ -329,7 +368,9 @@ def update_detection_command(client: Client, args: Dict[str, Any]) -> CommandRes
     
     result = client.detection(
         detection_id=detection_id,
-        id_type=id_type
+        params = {
+            '$idType': id_type
+        }
     )
 
     return CommandResults(
@@ -359,7 +400,6 @@ def executable_command(client: Client, args: Dict[str, Any], action: str = 'bloc
 
     result = client.executables(
         executable_id=executable_id,
-        id_type=id_type,
         body=body,
         action=action,
         params=params
@@ -563,6 +603,189 @@ def kill_process_command(client: Client, args: Dict[str, Any]) -> CommandResults
     )
 
 
+def list_exclusions_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    top = args.get('top')
+    skip = args.get('skip')
+    count = args.get('count')
+    order_by = args.get('order_by')
+
+    params = {
+        '$top': top,
+        '$skip': skip,
+        '$count': count,
+        '$orderBy': order_by
+    }
+
+    result = client.exclusions(params)
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Exclusions',
+        outputs_key_field='id',
+        outputs=result['value'],
+        raw_response=result
+    )
+
+
+def create_exclusion_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    exclusion_xml = args.get('exclusion_xml')
+
+    result = client.exclusions(
+        method='POST',
+        xml_body = exclusion_xml
+    )
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Exclusions',
+        outputs_key_field='id',
+        outputs=result['EXCLUSION'],
+        raw_response=result
+    )
+
+
+def get_exclusion_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    exclusion_id = args.get('id')
+    id_type = args.get('id_type')
+
+    params = {
+        '$idType': id_type
+    }
+
+    result = client.exclusions(
+        exclusion_id=exclusion_id,
+        params=params
+    )
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Exclusions',
+        outputs_key_field='uuid',
+        outputs=result['EXCLUSION'],
+        raw_response=result
+    )
+
+
+def edit_exclusion_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    exclusion_id = args.get('id')
+    id_type = args.get('id_type')
+    exclusion_xml = args.get('exclusion_xml')
+    auto_resolve = args.get('auto_resolve')
+    name = args.get('name')
+    rule_ids = args.get('rule_ids')
+    rule_uuids = args.get('rule_uuids')
+    note = args.get('note')
+    body = {}
+
+    if exclusion_xml:
+        body.update({'body': exclusion_xml})
+
+    if auto_resolve:
+        body.update({'autoResolve': auto_resolve})
+
+    if name:
+        body.update({'name': name})
+
+    if rule_ids:
+        body.update({'ruleIds': rule_ids})
+
+    if rule_uuids:
+        body.update({'ruleUuids': rule_uuids})
+
+    if note:
+        body.update({'note': note})
+
+    params = {
+        '$idType': id_type
+    }
+
+    result = client.exclusions(
+        exclusion_id=exclusion_id,
+        params=params,
+        body=body,
+        method='PUT'
+    )
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Exclusions',
+        outputs_key_field='uuid',
+        outputs=result['EXCLUSION'],
+        raw_response=result
+    )
+
+
+def delete_exclusion_command(client: Client, args: Dict[str, Any]) -> CommandResults:
+
+    exclusion_id = args.get('id')
+    id_type = args.get('id_type')
+
+    params = {
+        '$idType': id_type
+    }
+
+    result = client.exclusions(
+        exclusion_id=exclusion_id,
+        params=params,
+        method='DELETE'
+    )
+
+    return CommandResults(
+        outputs_prefix='ESETEnterpriseInspector.Exclusions',
+        outputs=result,
+        raw_response=result
+    )
+
+
+def fetch_incidents(client: Client, params: Dict[str, Any]) -> CommandResults:
+
+    first_fetch = params.get('fetch_time', '3 days')
+    fetch_limit = int(params.get('fetch_limit', 100))
+
+    last_run = demisto.getLastRun()
+    last_fetch = last_run.get('time')
+
+    if not last_fetch:
+        last_fetch = date_to_timestamp(dateparser.parse(first_fetch, settings={'TIMEZONE': 'UTC'}))
+
+    incidents = []
+    last_fetch_date_string = timestamp_to_datestring(last_fetch, '%Y-%m-%dT%H:%M:%SZ')
+    occurred = last_fetch_date_string
+
+    detection_params = {
+        '$filter': f'creationTime gt {last_fetch_date_string}',
+        '$orderBy': 'creationTime asc',
+        '$top': fetch_limit
+    }
+    
+    detections = client.detections(
+        params=detection_params
+    )['value']
+
+    for detection in detections:
+        full_detection = client.detections(
+            detection_id=detection['id']
+        )['DETECTION']
+
+        rule_name = full_detection['ruleName']
+        occurred = full_detection['creationTime']
+        raw_json = json.dumps(full_detection)
+
+        if rule_name == '':
+            rule_name = full_detection['threatName']
+
+        incident = {
+            'name': f"[ESET] {rule_name}",
+            'occurred': occurred,
+            'rawJSON': raw_json
+        }
+
+        incidents.append(incident)
+
+    demisto.setLastRun({'time': date_to_timestamp(occurred, '%Y-%m-%dT%H:%M:%SZ')})
+    demisto.incidents(incidents)
+
+
 ''' MAIN FUNCTION '''
 
 
@@ -616,12 +839,15 @@ def main() -> None:
             # Authenticate
             client.authenticate()
 
+            # Fetch incidents
+            if demisto.command() == 'fetch-incidents':
+                fetch_incidents(client, demisto.params())
+
             # List detections
-            if demisto.command() == 'eset-ei-list-detections':
+            elif demisto.command() == 'eset-ei-list-detections':
                 return_results(
                     list_detections_command(client, demisto.args())
                 )
-
             # Get detection details
             elif demisto.command() == 'eset-ei-get-detection':
                 return_results(
@@ -691,6 +917,33 @@ def main() -> None:
                 return_results(
                     kill_process_command(client, demisto.args())
                 )
+
+            # Exclusion operations
+            elif demisto.command() == 'eset-ei-list-exclusions':
+                return_results(
+                    list_exclusions_command(client, demisto.args())
+                )
+
+            elif demisto.command() == 'eset-ei-create-exclusion':
+                return_results(
+                    create_exclusion_command(client, demisto.args())
+                )
+
+            elif demisto.command() == 'eset-ei-get-exclusion':
+                return_results(
+                    get_exclusion_command(client, demisto.args())
+                )
+
+            elif demisto.command() == 'eset-ei-edit-exclusion':
+                return_results(
+                    edit_exclusion_command(client, demisto.args())
+                )
+
+            elif demisto.command() == 'eset-ei-delete-exclusion':
+                return_results(
+                    delete_exclusion_command(client, demisto.args())
+                )
+
 
     # Log exceptions and return errors
     except Exception as e:
